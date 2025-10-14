@@ -9,7 +9,7 @@ CareFlow is a modern Electronic Health Record (EHR) system designed for clinics 
 ## Features
 
 - **User Authentication**: Secure JWT-based authentication
-- **Role-Based Access Control**: Support for multiple user roles (admin, doctor, nurse, patient, secretary)
+- **Role-Based Access Control**: Support for multiple user roles (admin, doctor,, patient, secretary)
 - **RESTful API**: Clean and well-structured API endpoints
 - **MongoDB Database**: Scalable NoSQL database for storing medical records
 - **Docker Support**: Easy deployment with Docker and Docker Compose
@@ -156,7 +156,6 @@ Authorization: Bearer YOUR_JWT_TOKEN
 
 - `admin`: Full system access
 - `doctor`: Medical staff with elevated privileges
-- `nurse`: Medical staff
 - `patient`: Patient access
 - `secretary`: Administrative staff
 

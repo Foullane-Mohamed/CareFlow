@@ -1,19 +1,17 @@
-import mongoose from "mongoose"
-
+import mongoose from "mongoose";
 
 const patientSchema = new mongoose.Schema(
   {
-    user:{
-      type:mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required:true,
-    },
-    address: {type: String, required:true},
-    telephone: {type:String, required:true},
-    assurance: {type:String},
-    
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    dateOfBirth: { type: Date, required: true },
+    contact: { type: String, required: true },
+    insurance: { type: String },
+    allergies: { type: [String], default: [] },
+    medicalHistory: { type: [String], default: [] },
+    consent: { type: Boolean, default: false },
   },
-  {timestamps:true}
-)
+  { timestamps: true }
+);
 
-export const Patient = mongoose.model("Patient",patientSchema)
+export const Patient = mongoose.model("Patient", patientSchema);
