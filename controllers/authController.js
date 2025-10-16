@@ -12,7 +12,7 @@ const register = async (req, res) => {
     const { user, token } = await registerUser(name, email, password, role);
 
     res.status(201).json({
-      message: "User registered successfully as patient",
+      message: "User registered successfully",
       user,
       token,
     });

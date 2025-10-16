@@ -1,13 +1,7 @@
 import { User } from "../models/User.js";
 import jwt from "jsonwebtoken";
-import { isPublicRegistrationRole } from "../config/permissions.js";
 
-const registerUser = async (
-  name,
-  email,
-  password,
-  requestedRole = "patient"
-) => {
+const registerUser = async (name, email, password, role = "patient") => {
   if (!name || !email || !password) {
     throw new Error("Name, email, and password are required");
   }
@@ -15,11 +9,7 @@ const registerUser = async (
   const existingUser = await User.findOne({ email });
   if (existingUser) throw new Error("Email already in use");
 
-  const assignedRole = isPublicRegistrationRole(requestedRole)
-    ? requestedRole
-    : "patient";
-
-  const user = await User.create({ name, email, password, role: assignedRole });
+  const user = await User.create({ name, email, password, role });
 
   const token = jwt.sign(
     { id: user._id, role: user.role },
