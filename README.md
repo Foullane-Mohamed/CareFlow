@@ -1,198 +1,185 @@
-# CareFlow
+# CareFlow EHR — Partie 1 (MVP, Authentification)
 
-EHR (Electronic Health Record) destiné à des cliniques et cabinets
+**Statut** : MVP — Socle backend, authentification et gestion utilisateurs / patients / rendez‑vous (prévention des conflits).
 
 ## Description
 
-CareFlow is a modern Electronic Health Record (EHR) system designed for clinics and medical practices. It provides secure authentication and role-based access control for healthcare professionals.
+CareFlow est un backend RESTful pour un Electronic Health Record (EHR) destiné à cliniques et cabinets. Cette première partie (Partie 1) fournit le socle : authentification sécurisée (JWT access + refresh), gestion des utilisateurs et rôles, modèles de patients et rendez‑vous avec prévention automatique des conflits.
 
-## Features
+## Stack technique
 
-- **User Authentication**: Secure JWT-based authentication
-- **Role-Based Access Control**: Support for multiple user roles (admin, doctor,, patient, secretary)
-- **RESTful API**: Clean and well-structured API endpoints
-- **MongoDB Database**: Scalable NoSQL database for storing medical records
-- **Docker Support**: Easy deployment with Docker and Docker Compose
+* Node.js + Express
+* MongoDB + Mongoose
+* JWT (access & refresh tokens)
+* bcrypt pour le hachage des mots de passe
+* Joi ou express‑validator pour la validation
+* Redis (optionnel) pour file d'attente / refresh tokens / notifications
+* Winston + Morgan pour logging
+* Mocha / Chai / Supertest pour les tests
 
-## Prerequisites
+## Principales fonctionnalités (MVP)
 
-- Node.js 18+ or Docker
-- MongoDB 7.0+ (if running locally)
+* Inscription / connexion (JWT access + refresh)
+* Refresh token & logout
+* Réinitialisation de mot de passe par email (flow : request token -> email -> reset)
+* Gestion des rôles (admin, doctor, nurse, patient, secretary)
+* CRUD utilisateurs (admin) : création, suspension, réactivation
+* CRUD patients : dossier médical basique (allergies, antécédents, contact, assurance)
+* CRUD rendez‑vous : création, modification, annulation, prévention des conflits (HTTP 409)
+* Endpoint de disponibilités par praticien et date
 
-## Installation
+## Architecture proposée
 
-### Local Development
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/Foullane-Mohamed/CareFlow.git
-cd CareFlow
+```
+src/
+ ├─ controllers/
+ ├─ services/
+ ├─ models/
+ ├─ routes/
+ ├─ middlewares/
+ ├─ utils/
+ ├─ validators/
+ ├─ jobs/ (notifications, reminders)
+ ├─ tests/
+ └─ app.js (ou server.js)
 ```
 
-2. Install dependencies:
+* **controllers/** : orchestration des requêtes
+* **services/** : logique métier (vérif disponibilités, création rendez‑vous)
+* **models/** : schémas Mongoose
+* **middlewares/** : auth, errorHandler, validation, logging
+* **validators/** : schémas Joi
+
+## Variables d'environnement (exemple)
+
+```
+PORT=4000
+NODE_ENV=development
+MONGO_URI=mongodb://localhost:27017/careflow
+JWT_ACCESS_SECRET=your_access_secret
+JWT_REFRESH_SECRET=your_refresh_secret
+JWT_ACCESS_EXP=15m
+JWT_REFRESH_EXP=7d
+BCRYPT_SALT_ROUNDS=10
+EMAIL_SERVICE=sendgrid (ou smtp)
+EMAIL_API_KEY=...
+REDIS_URL=redis://localhost:6379
+FRONTEND_URL=http://localhost:3000
+```
+
+> **Sécurité** : stocker les secrets (JWT, SMTP) dans un vault ou variables d'environnements sécurisées.
+
+## Installation & démarrage
 
 ```bash
+# cloner
+git clone <repo>
+cd careflow
+
+# installer
 npm install
+
+# variables d'environnement
+# créer un .env basé sur .env.example
+
+# lancer en dev
+npm run dev
+
+# build + prod
+npm run start:prod
 ```
 
-3. Create `.env` file:
+**Scripts utiles (package.json)**
 
-```bash
-cp .env.example .env
-```
+* `dev` : nodemon + env de dev
+* `start` : node server
+* `test` : mocha/chai
+* `lint` : eslint
 
-4. Update the `.env` file with your configuration
+## Endpoints (résumé)
 
-5. Start MongoDB (if running locally)
+**Versioning** : `/api/v1/...`
 
-6. Run the application:
+### Auth
 
-```bash
-npm start
-```
+* `POST /api/v1/auth/register` — inscription (role par défaut : patient ou role contrôlé)
+* `POST /api/v1/auth/login` — connexion → { accessToken, refreshToken }
+* `POST /api/v1/auth/refresh` — rafraîchir access token
+* `POST /api/v1/auth/logout` — blacklist / supprimer refresh token
+* `POST /api/v1/auth/request-reset` — demander reset par email
+* `POST /api/v1/auth/reset` — effectuer reset avec token
 
-### Using Docker
+### Users (admin)
 
-1. Make sure Docker and Docker Compose are installed
+* `GET /api/v1/users` — lister (filtres, pagination)
+* `GET /api/v1/users/:id` — détail
+* `POST /api/v1/users` — créer (admin crée médecin, secrétaire, etc.)
+* `PUT /api/v1/users/:id` — modifier
+* `PATCH /api/v1/users/:id/suspend` — suspendre
+* `PATCH /api/v1/users/:id/activate` — réactiver
 
-2. Create `.env` file:
+### Patients
 
-```bash
-cp .env.example .env
-```
+* `GET /api/v1/patients` — recherche / filtres
+* `POST /api/v1/patients` — créer dossier
+* `GET /api/v1/patients/:id` — voir dossier
+* `PUT /api/v1/patients/:id` — modifier
+* `DELETE /api/v1/patients/:id` — supprimer (soft delete recommandé)
 
-3. Start the application with Docker Compose:
+### Appointments
 
-```bash
-docker-compose up -d
-```
+* `GET /api/v1/appointments` — lister
+* `POST /api/v1/appointments` — créer (vérification disponibilité)
+* `GET /api/v1/appointments/:id` — détail
+* `PUT /api/v1/appointments/:id` — modifier (vérif conflits)
+* `PATCH /api/v1/appointments/:id/cancel` — annuler
+* `PATCH /api/v1/appointments/:id/complete` — marquer complété
+* `GET /api/v1/doctors/:id/availability?date=YYYY-MM-DD` — disponibilités
 
-The API will be available at `http://localhost:3000`
+**Prévention conflits** : lors de création/modification, le service vérifie qu'aucun rendez‑vous existant pour le même praticien ne chevauche la plage horaire. En cas de chevauchement → HTTP 409 Conflict.
 
-## API Endpoints
+## Logiciel métier important
 
-### Authentication
+* **Service de disponibilité** : calculer créneaux à partir des rendez‑vous existants et des règles (durée par rendez‑vous, pauses)
+* **Détection conflit** : recherche d'intervalles qui se chevauchent (utiliser index sur doctorId + date)
+* **Rappels par email** : job périodique (cron) qui envoie rappel 24h avant via Redis queue
 
-#### Register a new user
+## Validation & erreurs
 
-```http
-POST /api/auth/register
-Content-Type: application/json
+* Utiliser Joi pour valider payloads et renvoyer erreurs claires (400)
+* Middleware d'erreurs centralisé pour logger et formater les réponses (500, 404, 403, 401, 409)
 
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "secure_password",
-  "role": "doctor"
-}
-```
+## Tests
 
-**Response:**
+* Unitaires : services critiques (disponibilités, création RDV, auth)
+* Intégration : endpoints avec mongodb-memory-server
+* Exemples : Supertest pour auth (register/login/refresh)
 
-```json
-{
-  "message": "User registered successfully",
-  "user": {
-    "id": "...",
-    "name": "John Doe",
-    "email": "john@example.com",
-    "role": "doctor"
-  },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
+## Bonnes pratiques & recommandations
 
-#### Login
+* Soft delete pour patients & users (isDeleted / suspended)
+* Indexes : `doctorId + startDate` pour accélérer recherche RDV
+* Limiter les tentatives de login (brute force)
+* Stocker les refresh tokens (Redis) pour pouvoir les révoquer
+* Utiliser HTTPS et sécuriser les cookies si tokens en cookies
 
-```http
-POST /api/auth/login
-Content-Type: application/json
+## Roadmap (prochaines étapes)
 
-{
-  "email": "john@example.com",
-  "password": "secure_password"
-}
-```
+1. Implémenter files d'attente (Redis + Bull) pour emails
+2. Ajouter calendrier partagé / export ICS
+3. Webhooks / intégration SSO (OAuth2) pour grands établissements
+4. RBAC fin (policies + permissions détaillées)
+5. Dashboard admin + métriques
 
-**Response:**
+## Contribution
 
-```json
-{
-  "message": "Login successful",
-  "user": {
-    "id": "...",
-    "name": "John Doe",
-    "email": "john@example.com",
-    "role": "doctor"
-  },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
+* Fork → feature branch → PR → revue
+* Respecter eslint et tests unitaires
 
-#### Get User Profile (Protected)
+## Licence
 
-```http
-GET /api/auth/profile
-Authorization: Bearer YOUR_JWT_TOKEN
-```
+MIT
 
-**Response:**
+---
 
-```json
-{
-  "user": {
-    "id": "...",
-    "name": "John Doe",
-    "email": "john@example.com",
-    "role": "doctor",
-    "isActive": true,
-    "createdAt": "2025-10-13T..."
-  }
-}
-```
-
-## User Roles
-
-- `admin`: Full system access
-- `doctor`: Medical staff with elevated privileges
-- `patient`: Patient access
-- `secretary`: Administrative staff
-
-## Environment Variables
-
-- `NODE_ENV`: Environment mode (development/production)
-- `PORT`: Server port (default: 3000)
-- `MONGO_URI`: MongoDB connection string
-- `JWT_SECRET`: Secret key for JWT token generation
-
-## Project Structure
-
-```
-CareFlow/
-├── config/           # Database configuration
-├── controllers/      # Request handlers
-├── middlewares/      # Authentication and error handling
-├── models/          # Database models
-├── routes/          # API routes
-├── services/        # Business logic
-├── app.js           # Express app configuration
-├── server.js        # Server entry point
-└── compose.yaml     # Docker Compose configuration
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-ISC
-
-## Author
-
-Foullane Mohamed
+*Pour toute modification (par ex. ajouter le flow complet d'email ou détails des schémas), dis-moi ce que tu veux et j'édite le README.*
