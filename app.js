@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import patientRoutes from "./routes/patientRoutes.js";
+import appointmentRoutes from "./routes/appointmentRoutes.js";
 import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 
 const app = express();
@@ -13,6 +14,7 @@ app.get("/", (req, res) => res.send("EHR API running"));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/patients", patientRoutes);
+app.use("/api/appointments", appointmentRoutes);
 
 app.use(errorMiddleware);
 

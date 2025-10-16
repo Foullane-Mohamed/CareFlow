@@ -1,6 +1,6 @@
 import { hasPermission } from "../config/permissions.js";
 
-export const authorizeRoles = (...roles) => {
+const authorizeRoles = (...roles) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -16,26 +16,23 @@ export const authorizeRoles = (...roles) => {
   };
 };
 
-export const checkPermission = (permission) => {
+const checkPermission = (permission) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
     if (!hasPermission(req.user.role, permission)) {
-      return res
-        .status(403)
-        .json({
-          message:
-            "Forbidden: You do not have permission to perform this action",
-        });
+      return res.status(403).json({
+        message: "Forbidden: You do not have permission to perform this action",
+      });
     }
 
     next();
   };
 };
 
-export const requireActiveUser = (req, res, next) => {
+const requireActiveUser = (req, res, next) => {
   if (!req.user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
@@ -47,7 +44,7 @@ export const requireActiveUser = (req, res, next) => {
   next();
 };
 
-export const checkOwnership = (resourceIdParam = "id") => {
+const checkOwnership = (resourceIdParam = "id") => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -69,3 +66,5 @@ export const checkOwnership = (resourceIdParam = "id") => {
     next();
   };
 };
+
+export { authorizeRoles, checkPermission, requireActiveUser, checkOwnership };

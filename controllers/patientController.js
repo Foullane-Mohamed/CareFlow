@@ -7,7 +7,7 @@ import {
 } from "../services/patientService.js";
 import { patientValidation } from "../validators/patientValidator.js";
 
-export const createPatientController = async (req, res, next) => {
+const createPatientController = async (req, res, next) => {
   try {
     const { error } = patientValidation.validate(req.body);
     if (error) {
@@ -20,7 +20,7 @@ export const createPatientController = async (req, res, next) => {
   }
 };
 
-export const getPatientsController = async (req, res, next) => {
+const getPatientsController = async (req, res, next) => {
   try {
     const patients = await getPatients(req.query);
     res.status(200).json(patients);
@@ -29,7 +29,7 @@ export const getPatientsController = async (req, res, next) => {
   }
 };
 
-export const getPatientByIdController = async (req, res, next) => {
+const getPatientByIdController = async (req, res, next) => {
   try {
     const patient = await getPatientById(req.params.id);
     if (!patient) {
@@ -41,7 +41,7 @@ export const getPatientByIdController = async (req, res, next) => {
   }
 };
 
-export const updatePatientController = async (req, res, next) => {
+const updatePatientController = async (req, res, next) => {
   try {
     const { error } = patientValidation.validate(req.body);
     if (error) {
@@ -57,7 +57,7 @@ export const updatePatientController = async (req, res, next) => {
   }
 };
 
-export const deletePatientController = async (req, res, next) => {
+const deletePatientController = async (req, res, next) => {
   try {
     const patient = await deletePatient(req.params.id);
     if (!patient) {
@@ -67,4 +67,12 @@ export const deletePatientController = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+export {
+  createPatientController,
+  getPatientsController,
+  getPatientByIdController,
+  updatePatientController,
+  deletePatientController,
 };

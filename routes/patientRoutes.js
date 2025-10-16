@@ -11,12 +11,8 @@ import { checkPermission } from "../middlewares/rbacMiddleware.js";
 
 const router = express.Router();
 
-router.post(
-  "/",
-  authenticate,
-  checkPermission("CREATE_PATIENT"),
-  createPatientController
-);
+router.post("/",authenticate, checkPermission("CREATE_PATIENT"),createPatientController);
+
 router.get(
   "/",
   authenticate,

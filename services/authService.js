@@ -1,11 +1,25 @@
 import { User } from "../models/User.js";
 import jwt from "jsonwebtoken";
+import { isPublicRegistrationRole } from "../config/permissions.js";
 
-export const registerUser = async (name, email, password, role) => {
+const registerUser = async (
+  name,
+  email,
+  password,
+  requestedRole = "patient"
+) => {
+  if (!name || !email || !password) {
+    throw new Error("Name, email, and password are required");
+  }
+
   const existingUser = await User.findOne({ email });
   if (existingUser) throw new Error("Email already in use");
 
-  const user = await User.create({ name, email, password, role });
+  const assignedRole = isPublicRegistrationRole(requestedRole)
+    ? requestedRole
+    : "patient";
+
+  const user = await User.create({ name, email, password, role: assignedRole });
 
   const token = jwt.sign(
     { id: user._id, role: user.role },
@@ -13,10 +27,46 @@ export const registerUser = async (name, email, password, role) => {
     { expiresIn: "7d" }
   );
 
-  return { user, token };
+  return {
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+    token,
+  };
 };
 
-export const loginUser = async (email, password) => {
+const createUserByAdmin = async (name, email, password, role, adminRole) => {
+  if (adminRole !== "admin") {
+    throw new Error("Only administrators can create users with specific roles");
+  }
+
+  if (!name || !email || !password || !role) {
+    throw new Error("Name, email, password, and role are required");
+  }
+
+  const existingUser = await User.findOne({ email });
+  if (existingUser) throw new Error("Email already in use");
+
+  const user = await User.create({ name, email, password, role });
+
+  return {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    isActive: user.isActive,
+    createdAt: user.createdAt,
+  };
+};
+
+const loginUser = async (email, password) => {
+  if (!email || !password) {
+    throw new Error("Email and password are required");
+  }
+
   const user = await User.findOne({ email });
   if (!user) throw new Error("Invalid email or password");
 
@@ -29,5 +79,36 @@ export const loginUser = async (email, password) => {
     { expiresIn: "7d" }
   );
 
-  return { user, token };
+  return {
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+    token,
+  };
+};
+
+const logoutUser = async (userId) => {
+  return { message: "Logout successful" };
+};
+
+const getUserProfile = (user) => {
+  return {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    isActive: user.isActive,
+    createdAt: user.createdAt,
+  };
+};
+
+export {
+  registerUser,
+  createUserByAdmin,
+  loginUser,
+  logoutUser,
+  getUserProfile,
 };

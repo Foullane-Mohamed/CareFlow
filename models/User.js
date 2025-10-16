@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: {
       type: String,
-      enum: ["admin", "doctor", "nurse", "patient", "secretary"],
+      enum: ["admin", "doctor", "infirmier", "patient", "secretary"],
       default: "patient",
     },
     isActive: { type: Boolean, default: true },
@@ -26,4 +26,6 @@ userSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-export const User = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+
+export { User };

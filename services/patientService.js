@@ -1,11 +1,11 @@
 import { Patient } from "../models/Patient.js";
 
-export const createPatient = async (data) => {
+const createPatient = async (data) => {
   const patient = new Patient(data);
   return await patient.save();
 };
 
-export const getPatients = async (filters = {}) => {
+const getPatients = async (filters = {}) => {
   const query = {};
 
   if (filters.firstName) {
@@ -31,14 +31,22 @@ export const getPatients = async (filters = {}) => {
   return await Patient.find(query);
 };
 
-export const getPatientById = async (id) => {
+const getPatientById = async (id) => {
   return await Patient.findById(id);
 };
 
-export const updatePatient = async (id, data) => {
+const updatePatient = async (id, data) => {
   return await Patient.findByIdAndUpdate(id, data, { new: true });
 };
 
-export const deletePatient = async (id) => {
+const deletePatient = async (id) => {
   return await Patient.findByIdAndDelete(id);
+};
+
+export {
+  createPatient,
+  getPatients,
+  getPatientById,
+  updatePatient,
+  deletePatient,
 };

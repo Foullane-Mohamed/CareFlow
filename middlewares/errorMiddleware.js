@@ -1,4 +1,4 @@
-export const errorMiddleware = (err, req, res, next) => {
+const errorMiddleware = (err, req, res, next) => {
   console.error(err.stack);
 
   const statusCode = err.statusCode || 500;
@@ -10,3 +10,5 @@ export const errorMiddleware = (err, req, res, next) => {
     ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
   });
 };
+
+export { errorMiddleware };

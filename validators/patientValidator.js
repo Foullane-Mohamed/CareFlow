@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-export const patientValidation = Joi.object({
+const patientValidation = Joi.object({
   firstName: Joi.string().required(),
   lastName: Joi.string().required(),
   dateOfBirth: Joi.date().required(),
@@ -11,4 +11,4 @@ export const patientValidation = Joi.object({
   consent: Joi.boolean().optional(),
 });
 
-
+export { patientValidation };
