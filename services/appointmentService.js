@@ -1,5 +1,23 @@
 import { Appointment } from "../models/Appointment.js";
 
+const validateTimeSlot = (heure) => {
+  const [hours, minutes] = heure.split(":").map(Number);
+
+  if (hours < 8 || hours >= 16) {
+    throw {
+      statusCode: 400,
+      message: "Appointments must be between 08:00 and 16:00",
+    };
+  }
+
+  if (minutes !== 0 && minutes !== 30) {
+    throw {
+      statusCode: 400,
+      message: "Appointments must start at 00 or 30 minutes only",
+    };
+  }
+};
+
 const checkAvailability = async (
   doctorId,
   patientId,
@@ -7,17 +25,13 @@ const checkAvailability = async (
   heure,
   excludeAppointmentId = null
 ) => {
-  const dateObj = new Date(date);
-  dateObj.setHours(0, 0, 0, 0);
-
-  const nextDay = new Date(dateObj);
-  nextDay.setDate(nextDay.getDate() + 1);
+  const startTime = new Date(`${date}T${heure}`);
+  const endTime = new Date(startTime.getTime() + 30 * 60 * 1000);
 
   const query = {
-    date: { $gte: dateObj, $lt: nextDay },
-    heure: heure,
     statut: { $ne: "cancelled" },
-    $or: [{ doctorId: doctorId }, { patientId: patientId }],
+    $or: [{ doctorId }, { patientId }],
+    $and: [{ startTime: { $lt: endTime } }, { endTime: { $gt: startTime } }],
   };
 
   if (excludeAppointmentId) {
@@ -31,6 +45,8 @@ const checkAvailability = async (
 const createAppointment = async (data) => {
   const { doctorId, patientId, date, heure } = data;
 
+  validateTimeSlot(heure);
+
   const isAvailable = await checkAvailability(doctorId, patientId, date, heure);
 
   if (!isAvailable) {
@@ -40,7 +56,15 @@ const createAppointment = async (data) => {
     };
   }
 
-  const appointment = new Appointment(data);
+  const startTime = new Date(`${date}T${heure}`);
+  const endTime = new Date(startTime.getTime() + 30 * 60 * 1000);
+
+  const appointment = new Appointment({
+    ...data,
+    startTime,
+    endTime,
+  });
+
   return await appointment.save();
 };
 
@@ -89,12 +113,16 @@ const updateAppointment = async (id, data) => {
   const needsAvailabilityCheck =
     data.date || data.heure || data.doctorId || data.patientId;
 
-  if (needsAvailabilityCheck) {
-    const doctorId = data.doctorId || existingAppointment.doctorId;
-    const patientId = data.patientId || existingAppointment.patientId;
-    const date = data.date || existingAppointment.date;
-    const heure = data.heure || existingAppointment.heure;
+  let date = data.date || existingAppointment.date;
+  let heure = data.heure || existingAppointment.heure;
+  let doctorId = data.doctorId || existingAppointment.doctorId;
+  let patientId = data.patientId || existingAppointment.patientId;
 
+  if (data.heure) {
+    validateTimeSlot(data.heure);
+  }
+
+  if (needsAvailabilityCheck) {
     const isAvailable = await checkAvailability(
       doctorId,
       patientId,
@@ -109,6 +137,13 @@ const updateAppointment = async (id, data) => {
         message: "Doctor or patient not available at this time",
       };
     }
+  }
+
+  if (data.date || data.heure) {
+    const startTime = new Date(`${date}T${heure}`);
+    const endTime = new Date(startTime.getTime() + 30 * 60 * 1000);
+    data.startTime = startTime;
+    data.endTime = endTime;
   }
 
   return await Appointment.findByIdAndUpdate(id, data, { new: true })

@@ -20,6 +20,14 @@ const appointmentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    startTime: {
+      type: Date,
+      required: true,
+    },
+    endTime: {
+      type: Date,
+      required: true,
+    },
     statut: {
       type: String,
       enum: ["scheduled", "completed", "cancelled"],
@@ -29,8 +37,8 @@ const appointmentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-appointmentSchema.index({ doctorId: 1, date: 1, heure: 1 });
-appointmentSchema.index({ patientId: 1, date: 1, heure: 1 });
+appointmentSchema.index({ doctorId: 1, startTime: 1, endTime: 1 });
+appointmentSchema.index({ patientId: 1, startTime: 1, endTime: 1 });
 
 const Appointment = mongoose.model("Appointment", appointmentSchema);
 

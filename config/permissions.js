@@ -13,6 +13,11 @@ const PERMISSIONS = {
   COMPLETE_APPOINTMENT: ["doctor"],
   CANCEL_APPOINTMENT: ["admin", "doctor", "infirmier", "secretary", "patient"],
   VIEW_APPOINTMENTS: ["admin", "doctor", "infirmier", "secretary", "patient"],
+  CREATE_MEDICAL_RECORD: ["admin", "doctor"],
+  UPDATE_MEDICAL_RECORD: ["admin", "doctor"],
+  DELETE_MEDICAL_RECORD: ["admin"],
+  VIEW_MEDICAL_RECORD: ["admin", "doctor", "patient"],
+  VIEW_ALL_MEDICAL_RECORDS: ["admin"],
 };
 
 const hasPermission = (userRole, permission) => {
