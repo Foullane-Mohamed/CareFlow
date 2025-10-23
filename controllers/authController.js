@@ -6,6 +6,7 @@ import {
   getUserProfile,
   refreshAccessToken,
 } from "../services/authService.js";
+import { refreshTokenValidation } from "../validators/authValidator.js";
 
 const register = async (req, res) => {
   try {
@@ -94,11 +95,12 @@ const logout = async (req, res) => {
 
 const refreshToken = async (req, res) => {
   try {
-    const { refreshToken } = req.body;
-
-    if (!refreshToken) {
-      return res.status(400).json({ message: "Refresh token is required" });
+    const { error } = refreshTokenValidation.validate(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
     }
+
+    const { refreshToken } = req.body;
 
     const { accessToken, user } = await refreshAccessToken(refreshToken);
 

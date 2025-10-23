@@ -5,7 +5,7 @@ const generateAccessToken = (userId, role) => {
   return jwt.sign(
     { id: userId, role: role },
     process.env.JWT_SECRET,
-    { expiresIn: "15m" } // 15 minutes
+    { expiresIn: "15m" }
   );
 };
 
@@ -13,7 +13,7 @@ const generateRefreshToken = (userId, role) => {
   return jwt.sign(
     { id: userId, role: role },
     process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
-    { expiresIn: "7d" } // 7 days
+    { expiresIn: "7d" }
   );
 };
 
@@ -27,11 +27,9 @@ const registerUser = async (name, email, password, role = "patient") => {
 
   const user = await User.create({ name, email, password, role });
 
-  // Generate both tokens
   const accessToken = generateAccessToken(user._id, user.role);
   const refreshToken = generateRefreshToken(user._id, user.role);
 
-  // Store refresh token in database
   user.refreshToken = refreshToken;
   await user.save();
 
