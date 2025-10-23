@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema(
       default: "patient",
     },
     isActive: { type: Boolean, default: true },
+    refreshToken: { type: String, default: null },
   },
   { timestamps: true }
 );

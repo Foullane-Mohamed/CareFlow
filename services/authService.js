@@ -1,6 +1,22 @@
 import { User } from "../models/User.js";
 import jwt from "jsonwebtoken";
 
+const generateAccessToken = (userId, role) => {
+  return jwt.sign(
+    { id: userId, role: role },
+    process.env.JWT_SECRET,
+    { expiresIn: "15m" } // 15 minutes
+  );
+};
+
+const generateRefreshToken = (userId, role) => {
+  return jwt.sign(
+    { id: userId, role: role },
+    process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
+    { expiresIn: "7d" } // 7 days
+  );
+};
+
 const registerUser = async (name, email, password, role = "patient") => {
   if (!name || !email || !password) {
     throw new Error("Name, email, and password are required");
@@ -11,11 +27,13 @@ const registerUser = async (name, email, password, role = "patient") => {
 
   const user = await User.create({ name, email, password, role });
 
-  const token = jwt.sign(
-    { id: user._id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" }
-  );
+  // Generate both tokens
+  const accessToken = generateAccessToken(user._id, user.role);
+  const refreshToken = generateRefreshToken(user._id, user.role);
+
+  // Store refresh token in database
+  user.refreshToken = refreshToken;
+  await user.save();
 
   return {
     user: {
@@ -24,7 +42,8 @@ const registerUser = async (name, email, password, role = "patient") => {
       email: user.email,
       role: user.role,
     },
-    token,
+    accessToken,
+    refreshToken,
   };
 };
 
@@ -63,11 +82,11 @@ const loginUser = async (email, password) => {
   const isMatch = await user.comparePassword(password);
   if (!isMatch) throw new Error("Invalid email or password");
 
-  const token = jwt.sign(
-    { id: user._id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" }
-  );
+  const accessToken = generateAccessToken(user._id, user.role);
+  const refreshToken = generateRefreshToken(user._id, user.role);
+
+  user.refreshToken = refreshToken;
+  await user.save();
 
   return {
     user: {
@@ -76,11 +95,13 @@ const loginUser = async (email, password) => {
       email: user.email,
       role: user.role,
     },
-    token,
+    accessToken,
+    refreshToken,
   };
 };
 
 const logoutUser = async (userId) => {
+  await User.findByIdAndUpdate(userId, { refreshToken: null });
   return { message: "Logout successful" };
 };
 
@@ -95,10 +116,55 @@ const getUserProfile = (user) => {
   };
 };
 
+const refreshAccessToken = async (refreshToken) => {
+  if (!refreshToken) {
+    throw new Error("Refresh token is required");
+  }
+
+  try {
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET
+    );
+
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (user.refreshToken !== refreshToken) {
+      throw new Error("Invalid refresh token");
+    }
+
+    const newAccessToken = generateAccessToken(user._id, user.role);
+
+    return {
+      accessToken: newAccessToken,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    };
+  } catch (error) {
+    if (error.name === "JsonWebTokenError") {
+      throw new Error("Invalid refresh token");
+    }
+    if (error.name === "TokenExpiredError") {
+      throw new Error("Refresh token expired. Please login again");
+    }
+    throw error;
+  }
+};
+
 export {
   registerUser,
   createUserByAdmin,
   loginUser,
   logoutUser,
   getUserProfile,
+  refreshAccessToken,
+  generateAccessToken,
+  generateRefreshToken,
 };

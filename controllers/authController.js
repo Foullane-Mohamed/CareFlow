@@ -4,17 +4,24 @@ import {
   loginUser,
   logoutUser,
   getUserProfile,
+  refreshAccessToken,
 } from "../services/authService.js";
 
 const register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
-    const { user, token } = await registerUser(name, email, password, role);
+    const { user, accessToken, refreshToken } = await registerUser(
+      name,
+      email,
+      password,
+      role
+    );
 
     res.status(201).json({
       message: "User registered successfully",
       user,
-      token,
+      accessToken,
+      refreshToken,
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -51,12 +58,16 @@ const createUser = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const { user, token } = await loginUser(email, password);
+    const { user, accessToken, refreshToken } = await loginUser(
+      email,
+      password
+    );
 
     res.status(200).json({
       message: "Login successful",
       user,
-      token,
+      accessToken,
+      refreshToken,
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -81,4 +92,24 @@ const logout = async (req, res) => {
   }
 };
 
-export { register, createUser, login, logout, getProfile };
+const refreshToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({ message: "Refresh token is required" });
+    }
+
+    const { accessToken, user } = await refreshAccessToken(refreshToken);
+
+    res.status(200).json({
+      message: "Access token refreshed successfully",
+      accessToken,
+      user,
+    });
+  } catch (error) {
+    res.status(401).json({ message: error.message });
+  }
+};
+
+export { register, createUser, login, logout, getProfile, refreshToken };
