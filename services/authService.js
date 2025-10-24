@@ -1,12 +1,11 @@
 import { User } from "../models/User.js";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 const generateAccessToken = (userId, role) => {
-  return jwt.sign(
-    { id: userId, role: role },
-    process.env.JWT_SECRET,
-    { expiresIn: "15m" }
-  );
+  return jwt.sign({ id: userId, role: role }, process.env.JWT_SECRET, {
+    expiresIn: "15m",
+  });
 };
 
 const generateRefreshToken = (userId, role) => {
@@ -156,6 +155,78 @@ const refreshAccessToken = async (refreshToken) => {
   }
 };
 
+const requestPasswordReset = async (email) => {
+  if (!email) {
+    throw new Error("Email is required");
+  }
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    // Security: Don't reveal if email exists
+    throw new Error(
+      "If an account with that email exists, a password reset token would be generated"
+    );
+  }
+
+  // Generate secure random token (32 bytes = 64 hex characters)
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  // Hash token before storing in database
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  // Store hashed token and expiration (1 hour)
+  user.resetPasswordToken = hashedToken;
+  user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+  await user.save();
+
+  // Return token directly in response (no email)
+  const resetUrl = `${
+    process.env.FRONTEND_URL || "http://localhost:3000"
+  }/reset-password?token=${resetToken}`;
+
+  return {
+    message: "Password reset token generated successfully",
+    resetToken: resetToken,
+    resetUrl: resetUrl,
+    expiresIn: "1 hour",
+  };
+};
+
+const resetPassword = async (token, newPassword) => {
+  if (!token || !newPassword) {
+    throw new Error("Token and new password are required");
+  }
+
+  // Hash the token from request to compare with stored hash
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  // Find user with valid token that hasn't expired
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpires: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    throw new Error("Invalid or expired reset token");
+  }
+
+  // Update password (will be hashed by pre-save hook)
+  user.password = newPassword;
+  user.resetPasswordToken = null;
+  user.resetPasswordExpires = null;
+  // Invalidate refresh token for security
+  user.refreshToken = null;
+  await user.save();
+
+  return {
+    message:
+      "Password has been reset successfully. Please login with your new password",
+  };
+};
+
 export {
   registerUser,
   createUserByAdmin,
@@ -165,4 +236,6 @@ export {
   refreshAccessToken,
   generateAccessToken,
   generateRefreshToken,
+  requestPasswordReset,
+  resetPassword,
 };

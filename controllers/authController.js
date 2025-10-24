@@ -5,8 +5,14 @@ import {
   logoutUser,
   getUserProfile,
   refreshAccessToken,
+  requestPasswordReset as requestPasswordResetService,
+  resetPassword as resetPasswordService,
 } from "../services/authService.js";
-import { refreshTokenValidation } from "../validators/authValidator.js";
+import {
+  refreshTokenValidation,
+  requestResetValidation,
+  resetPasswordValidation,
+} from "../validators/authValidator.js";
 
 const register = async (req, res) => {
   try {
@@ -114,4 +120,47 @@ const refreshToken = async (req, res) => {
   }
 };
 
-export { register, createUser, login, logout, getProfile, refreshToken };
+const requestPasswordReset = async (req, res) => {
+  try {
+    const { error } = requestResetValidation.validate(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
+
+    const { email } = req.body;
+    const result = await requestPasswordResetService(email);
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { error } = resetPasswordValidation.validate(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
+
+    const { token, newPassword } = req.body;
+    const result = await resetPasswordService(token, newPassword);
+
+    res.status(200).json({
+      message: result.message,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export {
+  register,
+  createUser,
+  login,
+  logout,
+  getProfile,
+  refreshToken,
+  requestPasswordReset,
+  resetPassword,
+};

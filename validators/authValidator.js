@@ -66,9 +66,31 @@ const createUserValidation = Joi.object({
     }),
 });
 
+const requestResetValidation = Joi.object({
+  email: Joi.string().email().required().messages({
+    "string.email": "Please provide a valid email address",
+    "string.empty": "Email is required",
+    "any.required": "Email is required",
+  }),
+});
+
+const resetPasswordValidation = Joi.object({
+  token: Joi.string().required().messages({
+    "string.empty": "Reset token is required",
+    "any.required": "Reset token is required",
+  }),
+  newPassword: Joi.string().min(6).required().messages({
+    "string.min": "New password must be at least 6 characters long",
+    "string.empty": "New password is required",
+    "any.required": "New password is required",
+  }),
+});
+
 export {
   refreshTokenValidation,
   registerValidation,
   loginValidation,
   createUserValidation,
+  requestResetValidation,
+  resetPasswordValidation,
 };
