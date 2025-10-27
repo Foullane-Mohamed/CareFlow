@@ -26,15 +26,12 @@ const checkAvailability = async (
   excludeAppointmentId = null
 ) => {
   const startTime = new Date(`${date}T${heure}`);
-  const endTime = new Date(startTime.getTime() + 30 * 60 * 1000); 
+  const endTime = new Date(startTime.getTime() + 30 * 60 * 1000);
 
   const query = {
     statut: { $ne: "cancelled" },
     $or: [{ doctorId }, { patientId }],
-    $and: [
-      { startTime: { $lt: endTime } }
-      { endTime: { $gt: startTime } }, 
-    ],
+    $and: [{ startTime: { $lt: endTime } }, { endTime: { $gt: startTime } }],
   };
 
   if (excludeAppointmentId) {
@@ -44,7 +41,6 @@ const checkAvailability = async (
   const conflict = await Appointment.findOne(query);
   return !conflict;
 };
-
 
 const createAppointment = async (data) => {
   const { doctorId, patientId, date, heure } = data;

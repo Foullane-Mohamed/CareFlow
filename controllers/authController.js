@@ -9,7 +9,6 @@ import {
   resetPassword as resetPasswordService,
 } from "../services/authService.js";
 import {
-  refreshTokenValidation,
   requestResetValidation,
   resetPasswordValidation,
 } from "../validators/authValidator.js";
@@ -101,12 +100,13 @@ const logout = async (req, res) => {
 
 const refreshToken = async (req, res) => {
   try {
-    const { error } = refreshTokenValidation.validate(req.body);
-    if (error) {
-      return res.status(400).json({ message: error.details[0].message });
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "No refresh token provided" });
     }
 
-    const { refreshToken } = req.body;
+    const refreshToken = authHeader.split(" ")[1];
 
     const { accessToken, user } = await refreshAccessToken(refreshToken);
 
