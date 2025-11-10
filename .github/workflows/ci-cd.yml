@@ -47,5 +47,5 @@ jobs:
       - name: Build Docker Image
         run: docker build -t careflow-backend ./backend
 
-      - name: Run Docker Compose (optional)
-        run: docker compose -f backend/compose.yaml up -d
+      - name: Run Docker Compose 
+        run: docker-compose -f backend/compose.yaml up -d
