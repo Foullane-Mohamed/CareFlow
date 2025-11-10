@@ -1,72 +1,51 @@
-name: CareFlow Backend CI/CD
+version: '3.8'
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: careflow-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-password}
+      MONGO_INITDB_DATABASE: ${MONGO_DB:-careflow}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - careflow-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-jobs:
-  build-test-deploy:
-    runs-on: ubuntu-latest
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: careflow-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-3000}
+      MONGO_URI: mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password}@mongodb:27017/${MONGO_DB:-careflow}?authSource=admin
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
+    ports:
+      - "3000:3000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - careflow-network
+    volumes:
+      - ./logs:/usr/src/app/logs
 
-    env:
-      MONGO_USERNAME: ${{ secrets.MONGO_USERNAME }}
-      MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
-      MONGO_DB: ${{ secrets.MONGO_DB }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      NODE_ENV: production
-      PORT: 3000
+volumes:
+  mongodb_data:
+    driver: local
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install dependencies
-        working-directory: backend
-        run: npm ci
-
-      - name: Ensure lint/test scripts exist
-        working-directory: backend
-        run: |
-          # إذا ما كايناش lint/test scripts، نضيف placeholders
-          node -e "
-          const fs = require('fs');
-          const pkg = require('./package.json');
-          pkg.scripts = pkg.scripts || {};
-          if (!pkg.scripts.lint) pkg.scripts.lint = 'echo \"No lint defined\"';
-          if (!pkg.scripts.test) pkg.scripts.test = 'echo \"No tests yet\"';
-          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
-          "
-
-      - name: Run Lint
-        working-directory: backend
-        run: npm run lint
-
-      - name: Run Tests
-        working-directory: backend
-        run: npm test
-
-      - name: Build Docker Image
-        run: docker build -t careflow-backend ./backend
-
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
-
-      - name: Free 27017 port (avoid conflict)
-        run: sudo fuser -k 27017/tcp || true
-
-      - name: Run Docker Compose
-        run: docker-compose -f backend/compose.yaml up -d
-
-      - name: Verify containers are running
-        run: docker ps
+networks:
+  careflow-network:
+    driver: bridge
