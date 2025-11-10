@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - 'feature/*'      # أي branch يبدأ بـ feature/ workflow غادي يشتغل
+      - "feature/*"
   pull_request:
     branches:
       - main
@@ -21,6 +21,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         working-directory: frontend
@@ -40,7 +42,8 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t careflow-frontend:${{ github.ref_name }} ./frontend
+          BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
+          docker build -t careflow-frontend:$BRANCH_NAME ./frontend
 
       - name: Deploy (optionnel)
         run: echo "Ajouter ici votre commande de déploiement (Netlify, Vercel, Docker, ...)"
