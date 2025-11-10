@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 'feature/*'      # أي branch يبدأ بـ feature/ workflow غادي يشتغل
   pull_request:
     branches:
       - main
@@ -36,6 +37,10 @@ jobs:
       - name: Build Production
         working-directory: frontend
         run: npm run build
+
+      - name: Build Docker Image
+        run: |
+          docker build -t careflow-frontend:${{ github.ref_name }} ./frontend
 
       - name: Deploy (optionnel)
         run: echo "Ajouter ici votre commande de déploiement (Netlify, Vercel, Docker, ...)"
