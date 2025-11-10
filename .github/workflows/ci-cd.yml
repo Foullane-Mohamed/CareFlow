@@ -15,8 +15,6 @@ jobs:
     services:
       mongo:
         image: mongo:7.0
-        ports:
-          - 27017:27017
         options: >-
           --health-cmd "echo 'db.runCommand(\"ping\").ok' | mongosh localhost:27017/test --quiet"
           --health-interval 10s

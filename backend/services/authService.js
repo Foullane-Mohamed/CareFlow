@@ -175,7 +175,7 @@ const requestPasswordReset = async (email) => {
     .digest("hex");
 
   user.resetPasswordToken = hashedToken;
-  user.resetPasswordExpires = Date.now() + 3600000; 
+  user.resetPasswordExpires = Date.now() + 3600000;
   await user.save();
 
 
