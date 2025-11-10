@@ -6,7 +6,9 @@
   "main": "app.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "lint": "eslint .",
+    "test": "echo \"No tests yet\""
   },
   "repository": {
     "type": "git",
