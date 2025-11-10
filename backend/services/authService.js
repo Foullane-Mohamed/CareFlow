@@ -162,27 +162,23 @@ const requestPasswordReset = async (email) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    // Security: Don't reveal if email exists
     throw new Error(
       "If an account with that email exists, a password reset token would be generated"
     );
   }
 
-  // Generate secure random token (32 bytes = 64 hex characters)
   const resetToken = crypto.randomBytes(32).toString("hex");
 
-  // Hash token before storing in database
   const hashedToken = crypto
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
 
-  // Store hashed token and expiration (1 hour)
   user.resetPasswordToken = hashedToken;
-  user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+  user.resetPasswordExpires = Date.now() + 3600000; 
   await user.save();
 
-  // Return token directly in response (no email)
+
   const resetUrl = `${
     process.env.FRONTEND_URL || "http://localhost:3000"
   }/reset-password?token=${resetToken}`;
@@ -200,10 +196,8 @@ const resetPassword = async (token, newPassword) => {
     throw new Error("Token and new password are required");
   }
 
-  // Hash the token from request to compare with stored hash
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-  // Find user with valid token that hasn't expired
   const user = await User.findOne({
     resetPasswordToken: hashedToken,
     resetPasswordExpires: { $gt: Date.now() },
@@ -213,11 +207,9 @@ const resetPassword = async (token, newPassword) => {
     throw new Error("Invalid or expired reset token");
   }
 
-  // Update password (will be hashed by pre-save hook)
   user.password = newPassword;
   user.resetPasswordToken = null;
   user.resetPasswordExpires = null;
-  // Invalidate refresh token for security
   user.refreshToken = null;
   await user.save();
 
