@@ -39,25 +39,22 @@ export default function Sidebar() {
             </div>
             <Link to="/dashboard/users" className={linkClass("/dashboard/users")}>
               <span className="flex items-center gap-3">
-                <span>👥</span>
+                
                 <span>Users</span>
               </span>
             </Link>
             <Link to="/dashboard/patients" className={linkClass("/dashboard/patients")}>
               <span className="flex items-center gap-3">
-                <span>🏥</span>
                 <span>Patients</span>
               </span>
             </Link>
             <Link to="/dashboard/appointments" className={linkClass("/dashboard/appointments")}>
               <span className="flex items-center gap-3">
-                <span>📅</span>
                 <span>Appointments</span>
               </span>
             </Link>
             <Link to="/dashboard/records" className={linkClass("/dashboard/records")}>
               <span className="flex items-center gap-3">
-                <span>📋</span>
                 <span>Medical Records</span>
               </span>
             </Link>
@@ -72,25 +69,21 @@ export default function Sidebar() {
             </div>
             <Link to="/dashboard/patients" className={linkClass("/dashboard/patients")}>
               <span className="flex items-center gap-3">
-                <span>🏥</span>
                 <span>Patients</span>
               </span>
             </Link>
             <Link to="/dashboard/appointments" className={linkClass("/dashboard/appointments")}>
               <span className="flex items-center gap-3">
-                <span>📅</span>
                 <span>Appointments</span>
               </span>
             </Link>
             <Link to="/dashboard/consultations" className={linkClass("/dashboard/consultations")}>
               <span className="flex items-center gap-3">
-                <span>💊</span>
                 <span>Consultations</span>
               </span>
             </Link>
             <Link to="/dashboard/records" className={linkClass("/dashboard/records")}>
               <span className="flex items-center gap-3">
-                <span>📋</span>
                 <span>Medical Records</span>
               </span>
             </Link>
@@ -104,19 +97,16 @@ export default function Sidebar() {
             </div>
             <Link to="/dashboard/patients" className={linkClass("/dashboard/patients")}>
               <span className="flex items-center gap-3">
-                <span>🏥</span>
                 <span>Patients</span>
               </span>
             </Link>
             <Link to="/dashboard/appointments" className={linkClass("/dashboard/appointments")}>
               <span className="flex items-center gap-3">
-                <span>📅</span>
                 <span>Appointments</span>
               </span>
             </Link>
             <Link to="/dashboard/consultations" className={linkClass("/dashboard/consultations")}>
               <span className="flex items-center gap-3">
-                <span>👁️</span>
                 <span>View Consultations</span>
               </span>
             </Link>
@@ -131,13 +121,12 @@ export default function Sidebar() {
             </div>
             <Link to="/dashboard/patients" className={linkClass("/dashboard/patients")}>
               <span className="flex items-center gap-3">
-                <span>🏥</span>
                 <span>Patients</span>
               </span>
             </Link>
             <Link to="/dashboard/appointments" className={linkClass("/dashboard/appointments")}>
               <span className="flex items-center gap-3">
-                <span>📅</span>
+
                 <span>Appointments</span>
               </span>
             </Link>
@@ -177,4 +166,3 @@ export default function Sidebar() {
     </aside>
   );
 }
-

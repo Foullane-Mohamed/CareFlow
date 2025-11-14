@@ -13,15 +13,8 @@ export default function DashboardHome() {
               {user?.role}
             </p>
           </div>
-          
-      
-          
-    
         </div>
       </div>
-
-    
     </div>
   );
 }
-
