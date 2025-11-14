@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import api from "@/api/axiosConfig";
 
@@ -84,6 +84,16 @@ export default function LoginPage() {
         >
           {loading ? "Logging in..." : "Login"}
         </button>
+
+          <div className="text-center mt-4">
+          <span className="text-gray-600 text-sm">Don't have an account?</span>
+          <Link
+            to="/register"
+            className="text-blue-600 font-medium text-sm ml-1 hover:underline"
+          >
+            Register here
+          </Link>
+        </div>
       </form>
     </div>
   );

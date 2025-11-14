@@ -5,10 +5,12 @@ import {
   Navigate,
 } from "react-router-dom";
 import LoginPage from "../pages/auth/LoginPage";
-import MainLayout from "../layouts/MainLayout";
+import RegisterPage from "@/pages/auth/RegisterPage";
+import MainLayout from "@/layouts/MainLayout";
 import DashboardHome from "../pages/dashboard/DashboardHome";
 import ProtectedRoute from "./ProtectedRoute";
 import GuestRoute from "./GuestRoute";
+
 
 export default function AppRouter() {
   return (
@@ -19,6 +21,14 @@ export default function AppRouter() {
           element={
             <GuestRoute>
               <LoginPage />
+            </GuestRoute>
+          }
+        />
+             <Route
+          path="/register"
+          element={
+            <GuestRoute>
+              <RegisterPage />
             </GuestRoute>
           }
         />
