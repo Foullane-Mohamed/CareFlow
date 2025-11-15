@@ -8,6 +8,11 @@ import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
 import MainLayout from "@/layouts/MainLayout";
 import DashboardHome from "../pages/dashboard/DashboardHome";
+import PatientsList from "@/pages/patients/PatientsList";
+import PatientCreate from "@/pages/patients/PatientCreate";
+import PatientDetail from "@/pages/patients/PatientDetail";
+import PatientEdit from "@/pages/patients/PatientEdit";
+import PatientDelete from "@/pages/patients/PatientDelete";
 import ProtectedRoute from "./ProtectedRoute";
 import GuestRoute from "./GuestRoute";
 
@@ -31,9 +36,7 @@ export default function AppRouter() {
               <RegisterPage />
             </GuestRoute>
           }
-        />
-
-        <Route
+        />        <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
@@ -42,6 +45,11 @@ export default function AppRouter() {
           }
         >
           <Route index element={<DashboardHome />} />
+          <Route path="patients" element={<PatientsList />} />
+          <Route path="patients/create" element={<PatientCreate />} />
+          <Route path="patients/:id" element={<PatientDetail />} />
+          <Route path="patients/:id/edit" element={<PatientEdit />} />
+          <Route path="patients/:id/delete" element={<PatientDelete />} />
         </Route>
 
         <Route path="/" element={<Navigate to="/login" replace />} />
