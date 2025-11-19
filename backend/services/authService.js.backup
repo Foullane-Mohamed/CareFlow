@@ -251,6 +251,5 @@ export {
   generateRefreshToken,
   requestPasswordReset,
   resetPassword,
-  getAllDoctors,
-};
+,  getAllDoctors};
 

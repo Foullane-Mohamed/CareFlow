@@ -18,8 +18,7 @@ export default function LoginPage() {
       setLoading(true);
       setError("");
       const res = await api.post("/api/auth/login", { email, password });
-      
-      // Response structure: { accessToken, refreshToken, user: { id, name, email, role } }
+
       const { accessToken, refreshToken, user } = res.data;
       login(user, accessToken, refreshToken);
       navigate("/dashboard");
@@ -42,7 +41,7 @@ export default function LoginPage() {
         <h3 className="text-lg font-medium text-center mb-4 text-gray-700">
           Sign In
         </h3>
-        
+
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Email
@@ -56,7 +55,7 @@ export default function LoginPage() {
             className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        
+
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Password
@@ -70,13 +69,13 @@ export default function LoginPage() {
             className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        
+
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-red-600 text-sm">{error}</p>
           </div>
         )}
-        
+
         <button
           type="submit"
           disabled={loading}
@@ -85,7 +84,7 @@ export default function LoginPage() {
           {loading ? "Logging in..." : "Login"}
         </button>
 
-          <div className="text-center mt-4">
+        <div className="text-center mt-4">
           <span className="text-gray-600 text-sm">Don't have an account?</span>
           <Link
             to="/register"

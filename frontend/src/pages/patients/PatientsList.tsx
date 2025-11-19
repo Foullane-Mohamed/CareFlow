@@ -7,7 +7,7 @@ export default function PatientsList() {
   const navigate = useNavigate();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(""); 
+  const [error, setError] = useState("");
   const fetchPatients = async () => {
     try {
       setLoading(true);
@@ -15,7 +15,6 @@ export default function PatientsList() {
       const patientsData = await PatientService.getAll();
       setPatients(patientsData);
     } catch (err: any) {
-      console.error("Failed to fetch patients:", err);
       setError(err.response?.data?.message || "Failed to fetch patients");
     } finally {
       setLoading(false);
@@ -40,7 +39,8 @@ export default function PatientsList() {
       {error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-sm text-red-600">{error}</p>
-        </div>      )}
+        </div>
+      )}
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
         {loading ? (

@@ -9,7 +9,16 @@ import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 
 const app = express();
 
-app.use(cors());
+// CORS Configuration for Frontend
+const corsOptions = {
+  origin: ["http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173"],
+  credentials: true,
+  optionsSuccessStatus: 200,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get("/", (req, res) => res.send("EHR API running"));

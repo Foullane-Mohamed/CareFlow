@@ -1,0 +1,13 @@
+﻿// Add this to the end of authController.js before the export statement
+
+const getDoctors = async (req, res) => {
+  try {
+    const doctors = await getAllDoctors();
+    res.status(200).json({
+      message: "Doctors fetched successfully",
+      data: doctors
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

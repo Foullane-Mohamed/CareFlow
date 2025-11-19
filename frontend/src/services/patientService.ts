@@ -3,13 +3,11 @@ import type { Patient, PatientCreateRequest, PatientUpdateRequest } from "@/type
 
 export class PatientService {
   private static basePath = "/api/patients";
-
   static async getAll(): Promise<Patient[]> {
     try {
       const response = await api.get(this.basePath);
       return response.data.data || response.data || [];
     } catch (error) {
-      console.error("Failed to fetch patients:", error);
       throw error;
     }
   }
@@ -19,7 +17,6 @@ export class PatientService {
       const response = await api.get(`${this.basePath}/${id}`);
       return response.data.data || response.data;
     } catch (error) {
-      console.error(`Failed to fetch patient ${id}:`, error);
       throw error;
     }
   }
@@ -29,7 +26,6 @@ export class PatientService {
       const response = await api.post(this.basePath, patientData);
       return response.data.data || response.data;
     } catch (error) {
-      console.error("Failed to create patient:", error);
       throw error;
     }
   }
@@ -39,7 +35,6 @@ export class PatientService {
       const response = await api.put(`${this.basePath}/${id}`, patientData);
       return response.data.data || response.data;
     } catch (error) {
-      console.error(`Failed to update patient ${id}:`, error);
       throw error;
     }
   }
@@ -48,7 +43,6 @@ export class PatientService {
     try {
       await api.delete(`${this.basePath}/${id}`);
     } catch (error) {
-      console.error(`Failed to delete patient ${id}:`, error);
       throw error;
     }
   }

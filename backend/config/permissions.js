@@ -3,11 +3,11 @@ const PERMISSIONS = {
   CREATE_USER: ["admin"],
   MANAGE_USERS: ["admin"],
   VIEW_USERS: ["admin", "secretary"],
-  MANAGE_PATIENTS: ["admin"],
+  MANAGE_PATIENTS: ["admin", "doctor", "secretary"],
   CREATE_PATIENT: ["admin", "doctor", "nurse", "infirmier", "secretary"],
   UPDATE_PATIENT: ["admin", "doctor", "infirmier"],
   VIEW_PATIENTS: ["admin", "doctor", "nurse", "infirmier", "secretary"],
-  MANAGE_APPOINTMENTS: ["admin", "secretary","infirmier"],
+  MANAGE_APPOINTMENTS: ["admin", "doctor", "secretary", "infirmier", "patient"],
   CREATE_APPOINTMENT: ["admin", "doctor", "nurse","infirmier", "secretary", "patient"],
   UPDATE_APPOINTMENT: ["admin", "doctor", "nurse", "infirmier", "secretary"],
   COMPLETE_APPOINTMENT: ["doctor"],
@@ -31,3 +31,6 @@ const hasPermission = (userRole, permission) => {
 };
 
 export { PERMISSIONS, hasPermission };
+
+
+
