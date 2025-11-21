@@ -84,6 +84,15 @@ export default function LoginPage() {
           {loading ? "Logging in..." : "Login"}
         </button>
 
+        <div className="text-center mt-3">
+          <Link
+            to="/request-password-reset"
+            className="text-blue-600 text-sm hover:underline"
+          >
+            Forgot password?
+          </Link>
+        </div>
+
         <div className="text-center mt-4">
           <span className="text-gray-600 text-sm">Don't have an account?</span>
           <Link

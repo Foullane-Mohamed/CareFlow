@@ -17,7 +17,6 @@ export default function PatientDelete() {
       const patientData = await PatientService.getById(id!);
       setPatient(patientData);
     } catch (err: any) {
-      console.error("Failed to fetch patient:", err);
       setError(err.response?.data?.message || "Failed to fetch patient");
     } finally {
       setFetchLoading(false);
@@ -33,7 +32,6 @@ export default function PatientDelete() {
       await PatientService.delete(id!);
       navigate("/dashboard/patients");
     } catch (err: any) {
-      console.error("Failed to delete patient:", err);
       setError(err.response?.data?.message || "Failed to delete patient");
     } finally {
       setLoading(false);
@@ -81,7 +79,8 @@ export default function PatientDelete() {
     );
   }
 
-  return (    <div className="space-y-6">
+  return (
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Delete Patient</h1>{" "}
         <button
@@ -89,18 +88,24 @@ export default function PatientDelete() {
           className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg border border-gray-300 hover:border-gray-400 transition"
         >
           Cancel
-        </button>      </div>
+        </button>{" "}
+      </div>
 
       {error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-sm text-red-600">{error}</p>
-        </div>      )}
+        </div>
+      )}
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="p-6">
           <p className="text-sm text-gray-700 mb-6">
-            Are you sure you want to delete <strong>{patient.firstName} {patient.lastName}</strong>? 
-            This action cannot be undone and will permanently remove all patient data.
+            Are you sure you want to delete{" "}
+            <strong>
+              {patient.firstName} {patient.lastName}
+            </strong>
+            ? This action cannot be undone and will permanently remove all
+            patient data.
           </p>
 
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
@@ -128,7 +133,8 @@ export default function PatientDelete() {
                 <dt className="font-medium text-gray-500">Insurance:</dt>
                 <dd className="text-gray-900">{patient.insurance}</dd>
               </div>
-            </dl>          </div>
+            </dl>{" "}
+          </div>
 
           <div className="flex justify-end space-x-4">
             {" "}

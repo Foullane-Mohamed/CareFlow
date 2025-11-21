@@ -151,18 +151,18 @@ export default function AppointmentDetail() {
       </div>
     );
   }
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div className="flex space-x-3">
-          <button
-            onClick={() => navigate("/dashboard/appointments")}
-            className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg border border-gray-300 hover:border-gray-400 transition"
-          >
-            Back to Appointments
-          </button>
-        </div>
+        <h1 className="text-3xl font-bold text-gray-900">
+          Appointment Details
+        </h1>
+        <button
+          onClick={() => navigate("/dashboard/appointments")}
+          className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg border border-gray-300 hover:border-gray-400 transition"
+        >
+          Back to Appointments
+        </button>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -230,7 +230,7 @@ export default function AppointmentDetail() {
                   {new Date(appointment.createdAt).toLocaleString()}
                 </dd>
               </div>
-            )}
+            )}{" "}
             {appointment.updatedAt && (
               <div>
                 <dt className="text-sm font-medium text-gray-500">
@@ -242,6 +242,57 @@ export default function AppointmentDetail() {
               </div>
             )}
           </dl>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
+        <div className="flex flex-wrap gap-3">
+          {canEdit() && (
+            <button
+              onClick={() =>
+                navigate(`/dashboard/appointments/${appointment._id}/edit`)
+              }
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            >
+              Edit Appointment
+            </button>
+          )}
+
+          {canComplete() && (
+            <button
+              onClick={() =>
+                navigate(`/dashboard/appointments/${appointment._id}/complete`)
+              }
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+            >
+              Mark as Completed
+            </button>
+          )}
+
+          {appointment?.status === "scheduled" &&
+            ["admin", "secretary", "patient"].includes(user?.role || "") && (
+              <button
+                onClick={() =>
+                  navigate(`/dashboard/appointments/${appointment._id}/cancel`)
+                }
+                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
+              >
+                Cancel Appointment
+              </button>
+            )}
+
+          {canDelete() && (
+            <button
+              onClick={() =>
+                navigate(`/dashboard/appointments/${appointment._id}/delete`)
+              }
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+            >
+              Delete Appointment
+            </button>
+          )}
         </div>
       </div>
     </div>

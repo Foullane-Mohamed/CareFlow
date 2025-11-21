@@ -18,7 +18,6 @@ export default function AppointmentCancel() {
       const appointmentData = await AppointmentService.getById(id!);
       setAppointment(appointmentData);
     } catch (err: any) {
-      console.error("Failed to fetch appointment:", err);
       setError(err.response?.data?.message || "Failed to fetch appointment");
     } finally {
       setFetchLoading(false);
@@ -34,7 +33,6 @@ export default function AppointmentCancel() {
       await AppointmentService.cancel(id!);
       navigate("/dashboard/appointments");
     } catch (err: any) {
-      console.error("Failed to cancel appointment:", err);
       setError(err.response?.data?.message || "Failed to cancel appointment");
     } finally {
       setLoading(false);

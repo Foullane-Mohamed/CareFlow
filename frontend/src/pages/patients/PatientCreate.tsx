@@ -30,14 +30,14 @@ export default function PatientCreate() {
       await PatientService.create(formData);
       navigate("/dashboard/patients");
     } catch (err: any) {
-      console.error("Failed to create patient:", err);
       setError(err.response?.data?.message || "Failed to create patient");
     } finally {
       setLoading(false);
     }
   };
 
-  return (    <div className="space-y-6">
+  return (
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Create New Patient</h1>
         <button
@@ -45,15 +45,19 @@ export default function PatientCreate() {
           className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg border border-gray-300 hover:border-gray-400 transition"
         >
           Back to Patients
-        </button>      </div>
+        </button>{" "}
+      </div>
 
       {error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-sm text-red-600">{error}</p>
-        </div>      )}
+        </div>
+      )}
 
       <div className="bg-white rounded-lg shadow p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {" "}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label
                 htmlFor="firstName"
@@ -70,8 +74,8 @@ export default function PatientCreate() {
                 required
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter first name"
-              />            </div>
-
+              />{" "}
+            </div>
             <div>
               <label
                 htmlFor="lastName"
@@ -88,8 +92,8 @@ export default function PatientCreate() {
                 required
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter last name"
-              />            </div>
-
+              />{" "}
+            </div>
             <div>
               <label
                 htmlFor="dateOfBirth"
@@ -105,8 +109,8 @@ export default function PatientCreate() {
                 onChange={handleChange}
                 required
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />            </div>
-
+              />{" "}
+            </div>
             <div>
               <label
                 htmlFor="contact"
@@ -123,8 +127,8 @@ export default function PatientCreate() {
                 required
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Phone number or email"
-              />            </div>
-
+              />{" "}
+            </div>
             <div className="md:col-span-2">
               <label
                 htmlFor="insurance"
@@ -142,8 +146,8 @@ export default function PatientCreate() {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Insurance provider or policy number"
               />
-            </div>          </div>
-
+            </div>{" "}
+          </div>
           <div className="flex justify-end space-x-4">
             <button
               type="button"

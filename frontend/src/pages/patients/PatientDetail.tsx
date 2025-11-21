@@ -16,7 +16,6 @@ export default function PatientDetail() {
       const patientData = await PatientService.getById(id!);
       setPatient(patientData);
     } catch (err: any) {
-      console.error("Failed to fetch patient:", err);
       setError(err.response?.data?.message || "Failed to fetch patient");
     } finally {
       setLoading(false);
